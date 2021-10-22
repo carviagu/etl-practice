@@ -1,3 +1,5 @@
+![CUNEF Logo](logo.png)
+
 # ETL CUNEF
 Recopilación de ficheros de la asignatura ETL del MUCD de CUNEF Universidad. 
 
@@ -6,3 +8,5 @@ Contiene los ficheros de código en Python y R.
 
 ## Data
 Contiene los ficheros de datos (csv, xlsx, ...)
+
+
