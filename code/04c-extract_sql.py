@@ -1,6 +1,6 @@
 # Conectamos a la base de datos
 from sqlalchemy import create_engine
-engine = create_engine('sqlite:///../data/indexKaggle.sqlite')
+engine = create_engine('sqlite:///data/indexKaggle.sqlite')
 
 # Trabajaremos con pandas
 import pandas as pd
