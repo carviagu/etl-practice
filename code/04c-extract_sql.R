@@ -16,9 +16,11 @@ summary <- tbl(conn, "mtcars") %>%
   summarise(mpg = mean(mpg, na.rm = TRUE)) %>% 
   arrange(desc(mpg))
 
-# summary
+summary
+collect(summary) # suele costar más recursos esta operación
 
-summary %>% show_query()
+
+summary %>% show_query() 
 
 # execute query and retrieve results
 summary %>% collect()

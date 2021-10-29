@@ -1,6 +1,6 @@
 
 library(readxl)
-path_to_file <- "../data/ejemplos_lectura.xlsx"
+path_to_file <- "data/ejemplos_lectura.xlsx"
 df_chungo <- read_xlsx(path_to_file, sheet = "Holi")
 df_chungo
 
@@ -14,7 +14,11 @@ df_chungo %>%
 
 df_chungo %>% 
   select(chungo_02) %>% 
-  mutate(fecha = as.Date(chungo_02, format = "Hoy es %d de %B de %Y"))
+  mutate(fecha = as.Date(chungo_02, format = "Hoy es %d de %B de %Y")) # falla por el idioma
+
+# El ordenador está en inglés
+# Pero el texto está en español
+# Así que el ordenador no tiene ni puta idea de lo que significa Agosto
 
 # Expressions in other languages
 
@@ -32,6 +36,10 @@ Sys.setlocale("LC_TIME", "Spanish")
 # La cuarta columna chunga es un número no entero leído como 
 # carácter. Primero tendremos que pasar el carácter a número
 # y luego convertimos a fecha. 
+
+df_chungo %>% 
+  select(chungo_04) %>% 
+  mutate(as.Date(chungo_04, origin = "1899-12-30")) #No puede pq es un texto
 
 library(readr)
 df_chungo %>% 
@@ -56,6 +64,8 @@ df_chungo %>%
 #' Ejemplo. Calculamos el lunes de la semana a la que pertenece cada
 #' fecha de la columna `fecha_01`.
 
+library(lubridate)
+
 df_fechas %>% 
   select(fecha_01) %>% 
   mutate(lunes = floor_date(fecha_01, "week", week_start = 1))
@@ -66,6 +76,8 @@ df_fechas %>%
 df_fechas %>% 
   select(starts_with("fecha")) %>% 
   mutate(across(starts_with("fecha"), as.Date))
+
+library(ISOweek)
 
 df_fechas %>% 
   select(fecha_01) %>% 
