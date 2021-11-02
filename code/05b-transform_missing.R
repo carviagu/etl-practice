@@ -72,6 +72,8 @@ df_imputed$V1[is.na(df_imputed$V1)] <- runif(how_many_na)
 
 check_na_per_column(df_imputed)
 
+
+
 # Dato previo -------------------------------------------------------------
 library(ggplot2)
 ggplot(df_simulated) + 
