@@ -65,6 +65,7 @@ check_na_per_column(df_imputed)
 # original one
 df_imputed <- df_simulated
 
+# V1 -> uniform distribution between 0 and 1.
 how_many_na <- sum(is.na(df_imputed$V1))
 
 set.seed(789)
@@ -72,6 +73,37 @@ df_imputed$V1[is.na(df_imputed$V1)] <- runif(how_many_na)
 
 check_na_per_column(df_imputed)
 
+# V2 -> normal distribution with mean 0 and variance 1.
+how_many_na <- sum(is.na(df_imputed$V2))
+
+set.seed(789)
+df_imputed$V2[is.na(df_imputed$V2)] <- rnorm(how_many_na, mean = 0, sd = 1)
+
+check_na_per_column(df_imputed)
+
+# V3 -> normal distribution with mean 100 and variance 10.
+how_many_na <- sum(is.na(df_imputed$V3))
+
+set.seed(789)
+df_imputed$V3[is.na(df_imputed$V3)] <- rnorm(how_many_na, mean = 100, sd = sqrt(10))
+
+check_na_per_column(df_imputed)
+
+# V4 -> Poisson distribution with $\lambda = 10$.
+how_many_na <- sum(is.na(df_imputed$V4))
+
+set.seed(789)
+df_imputed$V4[is.na(df_imputed$V4)] <- rpois(how_many_na, lambda = 10)
+
+check_na_per_column(df_imputed)
+
+# V5 -> something random.
+how_many_na <- sum(is.na(df_imputed$V5))
+
+set.seed(789)
+df_imputed$V5[is.na(df_imputed$V5)] <- seq(1, 15)
+
+check_na_per_column(df_imputed)
 
 
 # Dato previo -------------------------------------------------------------
