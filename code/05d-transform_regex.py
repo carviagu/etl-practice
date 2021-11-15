@@ -12,6 +12,12 @@ print(tweet)
 
 import re
 
+# all letter and numbers
+re.findall(r'\w', tweet)
+
+# all words
+re.findall(r'\w+', tweet)
+
 # all mentions
 re.findall(r'@\w+', tweet)
 
@@ -23,12 +29,17 @@ re.findall(r'@\w+', tweet)
 # all hashtags
 re.findall(r'#\w+', tweet)
 
+# busca la última palabra (igual al de arriba)
 re.findall(r'[A-za-z0-9#]+$', tweet)
 
 # all urls
 re.findall(r'http[A-z0-9:./\-]+', tweet)
+re.findall(r'http[A-z0-0.:/]+.com', tweet)
 
+# Todas las palabras que empiezan por mayus
 re.findall(r'\s[A-Z][a-z]*', tweet)
+# Solo palabras (más de una letra)
+re.findall(r'\s[A-Z][a-z]+', tweet)
 
 # valid passwords
 passwords = ['Apple34!rose', 'My87hou#4$', 'abc123']
@@ -41,3 +52,7 @@ for example in passwords:
       	print("The password {pass_example} is a valid password".format(pass_example=example))
     else:
       	print("The password {pass_example} is invalid".format(pass_example=example))     
+
+
+re.findall(r'[0-9\-]{10}', tweet)
+re.findall(r'\d{4}\-\d{2}\-\d{2}', tweet)
