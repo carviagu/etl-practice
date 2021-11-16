@@ -1,0 +1,129 @@
+---
+title: "ETL Exercises Notebook"
+author: "Máster Universitario en Ciencia de Datos"
+date: "CUNEF Universidad"
+output: 
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+---
+<!-- Estilo y otras configuraciones -->
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{css, echo = FALSE}
+.box {
+  padding: 10px 10px;
+  background-color: #E0E0E0;
+    border-radius: 5px;
+}
+
+```
+
+<!-- Fin -->
+
+Version `r format(Sys.time(), '%d.%m.%y')`
+
+![](big_data_picture.jpg)
+<br/>
+
+::: {.box}
+Los enunciados de los ejercicios fueron elaborados por *Leonado Hansa* profesor de ETL en el Máster Universitario en Ciencia de Datos de CUNEF Universidad. Las soluciones propuestas han sido elaboradas por *Carlos Viñals Guitart*, al igual que el documento. 
+:::
+
+<br/>
+<br/>
+
+## General Tools
+
+**Exercise 1**
+Using ```ls``` and ```cd``` in your computer explore your folders and the contents of the folder you use for the Master's dgree. *Remark*: If you use Windows, it is recommendable downloading Git bash for Windows.
+
+**Solution 1**
+
+```ls``` is the bash command to show what is in a folder. For example:
+
+```console
+rstudio@c0addac18593:~/etl$ ls
+code  data  exercises  logo.png  README.md
+```
+
+You can use different commands like ```-la```, this option will show you all the
+elements you can find inside the directory you are:
+
+```console
+rstudio@c0addac18593:~/etl$ ls -la
+total 56
+drwxr-xr-x 6 rstudio rstudio  4096 Nov 16 12:19 .
+drwxr-xr-x 1 rstudio rstudio  4096 Nov 15 15:55 ..
+drwxr-xr-x 2 rstudio rstudio  4096 Oct 29 18:35 code
+drwxr-xr-x 4 rstudio rstudio  4096 Oct 29 18:37 data
+drwxr-xr-x 2 rstudio rstudio  4096 Nov 16 12:31 exercises
+drwxr-xr-x 8 rstudio rstudio  4096 Nov 15 18:05 .git
+-rw-r--r-- 1 rstudio rstudio     6 Oct 26 17:03 .gitignore
+-rw-r--r-- 1 rstudio rstudio 13461 Oct 22 22:28 logo.png
+-rw-r--r-- 1 rstudio rstudio   232 Oct 22 22:28 README.md
+-rw-r--r-- 1 rstudio rstudio    26 Oct 26 18:31 .Rhistory
+```
+
+Without entering in detail of all the information this command gives us we can comment some 
+of it. 
+
+In this case we see the same files and folders like before, but we can also see special files like ```.git```, this files are normally hided of the users view.  And two additional files:
+```.``` and ```..``` that refer to the actual directory path and the parent directory
+(the one that contains the folder we are in). 
+
+You can see also the permissions you have to the file: ```r``` read, ```w``` write
+and ```x``` execute. 
+
+```cd``` is the bash command to navigate between directories. For example:
+
+```console
+# We are now in the main folder
+rstudio@c0addac18593:~/etl$ ls
+code  data  exercises  logo.png  README.md
+
+# We are going to enter the code folder
+rstudio@c0addac18593:~/etl$ cd code
+rstudio@c0addac18593:~/etl/code$ ls
+04a-extract_csv.py  04c-extract_sql.R
+
+# We can turn back to the parent folder
+rstudio@c0addac18593:~/etl/code$ cd ..
+rstudio@c0addac18593:~/etl$ ls
+code  data  exercises  logo.png  README.md
+```
+
+<br/>
+<br/>
+
+**Exercise 2**
+Create in your local Desktop a file called ```testing-bash.ter``` and write in the text "Holi!". Use ```echo``` and ```>``` for this. Then create a folder in your Documents folder named ```carpeta_prueba```. Move the previous file inside this folder and, check with ls you've done it properly. Now use ```cat``` for checking the text actually written in the file. Finally, remove the folder ```carpeta_prueba``` with ```rm```.
+
+**Solution 2**
+
+```console
+# TO DO
+```
+
+<br/>
+<br/>
+
+**Exercise 3**
+Run a docker container from the image ```lhansa/cunefark:0.1.0```, as shown in the
+Canvas notes. Explore the container with ```ls``` and ```cd```. Create a Git repository
+in GitHub and link a folder inside this container to that repo.
+
+**Solution 3**
+
+This exercise can be done with the tools we explain at *Exercise 1*, but it is 
+interesting to talk a bit about **Docker** and **Git**. Two very important tools for 
+programming in general. 
+
+```console
+# TO DO
+```
