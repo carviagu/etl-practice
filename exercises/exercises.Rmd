@@ -122,8 +122,120 @@ in GitHub and link a folder inside this container to that repo.
 
 This exercise can be done with the tools we explain at *Exercise 1*, but it is 
 interesting to talk a bit about **Docker** and **Git**. Two very important tools for 
-programming in general. 
+programming in general.
+
+For creating your the container of the exercise you have to open a console and write the
+following command:
 
 ```console
-# TO DO
+docker run -it -p 8888:8888 lhansa/cunefark:0.1.0 bash
 ```
+
+Once the image is downloaded, the container will be running, we can now if it is 
+running using ```docker ps```:
+
+```
+PS C:\Users\carviagu> docker ps
+CONTAINER ID   IMAGE                   COMMAND   CREATED       STATUS         PORTS                                                                                  NAMES
+c0addac18593   lhansa/cunefetl:0.1.1   "bash"    3 weeks ago   Up 7 minutes   0.0.0.0:8787->8787/tcp, :::8787->8787/tcp, 0.0.0.0:8888->8888/tcp, :::8888->8888/tcp   amazing_taussig
+```
+
+We can access our container using ```docker exec``` command:
+
+```
+PS C:\Users\carviagu> docker exec -it amazing_taussig bash
+rstudio@c0addac18593:/$
+```
+
+
+## Extract
+
+### Plain Text
+
+**Exercise 1**
+With pandas, from *hipotecas_lectura* file read only the data from the second 
+semester of 2020, and including somehow the names of the columns.
+
+**Solution 1**
+
+```{python, warning=FALSE}
+import pandas as pd
+
+# We will try with csv format
+hipotecas = pd.read_csv('/home/rstudio/etl/data/hipotecas/hipotecas_lectura')
+
+# We can see a glimpse of the object
+hipotecas.head()
+```
+
+We can see that ```read_csv``` works fine but we only want the second semester of
+2020:
+
+```{python}
+# WITH PYTHON
+# import pandas as pd
+# We will keep the column names first
+hipotecas = pd.read_csv('/home/rstudio/etl/data/hipotecas/hipotecas_lectura', 
+nrows=3) 
+cols = list(hipotecas.columns)
+
+# We will skip first 7 rows and read only the next 6 ones
+hipotecas = pd.read_csv('/home/rstudio/etl/data/hipotecas/hipotecas_lectura', 
+skiprows=7, nrows=6, names=cols)
+
+hipotecas.head(6)
+```
+
+<br/>
+<br/>
+
+**Exercise 2**
+With readr, from the ```hipotecas_lectura``` file read only the data from the first semester of 2020, and including somehow the names of the columns.
+
+**Solution 2**
+
+```{r}
+# WITH R
+library(readr)
+
+# Searching dataframe column names
+names <- names(read_csv('/home/rstudio/etl/data/hipotecas/hipotecas_lectura'))
+
+# Reading data frame 
+hipotecas2 <- read_csv('/home/rstudio/etl/data/hipotecas/hipotecas_lectura', 
+                       skip = 13, n_max = 6, col_names = names)
+
+hipotecas2
+```
+
+<br/>
+<br/>
+
+**Exercise 3**
+Try your best reading the original file downloaded from the INE's site, ```hipotecas_numero_ine.csv```. *Remark*: you may need to specify that the encoding is "ISO-8859-2".
+
+**Solution 3**
+```{r}
+# WITH R
+hip_ine <- read.csv2('/home/rstudio/etl/data/hipotecas/hipotecas_numero_ine.csv', 
+                    skip = 6, nrows = 18 , fileEncoding = 'ISO-8859-2')
+
+hip_ine
+```
+
+```{python}
+# import pandas as pd
+hip_ine = pd.read_csv('/home/rstudio/etl/data/hipotecas/hipotecas_numero_ine.csv', 
+                      skiprows=6, nrows=18, encoding='ISO-8859-2', delimiter=';')
+
+hip_ine
+```
+
+
+<br/>
+<br/>
+
+### Excel
+
+**Exercise 1**
+

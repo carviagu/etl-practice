@@ -314,7 +314,255 @@ code  data  exercises  logo.png  README.md</code></pre>
 <p><strong>Exercise 3</strong> Run a docker container from the image <code>lhansa/cunefark:0.1.0</code>, as shown in the Canvas notes. Explore the container with <code>ls</code> and <code>cd</code>. Create a Git repository in GitHub and link a folder inside this container to that repo.</p>
 <p><strong>Solution 3</strong></p>
 <p>This exercise can be done with the tools we explain at <em>Exercise 1</em>, but it is interesting to talk a bit about <strong>Docker</strong> and <strong>Git</strong>. Two very important tools for programming in general.</p>
-<pre class="console"><code># TO DO</code></pre>
+<p>For creating your the container of the exercise you have to open a console and write the following command:</p>
+<pre class="console"><code>docker run -it -p 8888:8888 lhansa/cunefark:0.1.0 bash</code></pre>
+<p>Once the image is downloaded, the container will be running, we can now if it is running using <code>docker ps</code>:</p>
+<pre><code>PS C:\Users\carviagu&gt; docker ps
+CONTAINER ID   IMAGE                   COMMAND   CREATED       STATUS         PORTS                                                                                  NAMES
+c0addac18593   lhansa/cunefetl:0.1.1   &quot;bash&quot;    3 weeks ago   Up 7 minutes   0.0.0.0:8787-&gt;8787/tcp, :::8787-&gt;8787/tcp, 0.0.0.0:8888-&gt;8888/tcp, :::8888-&gt;8888/tcp   amazing_taussig</code></pre>
+<p>We can access our container using <code>docker exec</code> command:</p>
+<pre><code>PS C:\Users\carviagu&gt; docker exec -it amazing_taussig bash
+rstudio@c0addac18593:/$</code></pre>
+</div>
+<div id="extract" class="section level2">
+<h2>Extract</h2>
+<div id="plain-text" class="section level3">
+<h3>Plain Text</h3>
+<p><strong>Exercise 1</strong> With pandas, from <em>hipotecas_lectura</em> file read only the data from the second semester of 2020, and including somehow the names of the columns.</p>
+<p><strong>Solution 1</strong></p>
+<pre class="python"><code>import pandas as pd
+
+# We will try with csv format
+hipotecas = pd.read_csv(&#39;/home/rstudio/etl/data/hipotecas/hipotecas_lectura&#39;)
+
+# We can see a glimpse of the object
+hipotecas.head()</code></pre>
+<pre><code>##     period  total_nacional  ...  pais_vasco  rioja_la
+## 0  2021M06         37961.0  ...      1782.0     175.0
+## 1  2021M05         35225.0  ...      1873.0     209.0
+## 2  2021M04         31909.0  ...      1505.0     214.0
+## 3  2021M03         36886.0  ...      1734.0     203.0
+## 4  2021M02         31647.0  ...      1657.0     215.0
+## 
+## [5 rows x 21 columns]</code></pre>
+<p>We can see that <code>read_csv</code> works fine but we only want the second semester of 2020:</p>
+<pre class="python"><code># WITH PYTHON
+# import pandas as pd
+# We will keep the column names first
+hipotecas = pd.read_csv(&#39;/home/rstudio/etl/data/hipotecas/hipotecas_lectura&#39;, 
+nrows=3) 
+cols = list(hipotecas.columns)
+
+# We will skip first 7 rows and read only the next 6 ones
+hipotecas = pd.read_csv(&#39;/home/rstudio/etl/data/hipotecas/hipotecas_lectura&#39;, 
+skiprows=7, nrows=6, names=cols)
+
+hipotecas.head(6)</code></pre>
+<pre><code>##     period  total_nacional  ...  pais_vasco  rioja_la
+## 0  2020M12           26128  ...        1555       123
+## 1  2020M11           28756  ...        1729       197
+## 2  2020M10           28248  ...        1451       179
+## 3  2020M09           26878  ...        1469       142
+## 4  2020M08           19825  ...        1125       174
+## 5  2020M07           26014  ...        2185       202
+## 
+## [6 rows x 21 columns]</code></pre>
+<p><br /> <br /></p>
+<p><strong>Exercise 2</strong> With readr, from the <code>hipotecas_lectura</code> file read only the data from the first semester of 2020, and including somehow the names of the columns.</p>
+<p><strong>Solution 2</strong></p>
+<pre class="r"><code># WITH R
+library(readr)
+
+# Searching dataframe column names
+names &lt;- names(read_csv(&#39;/home/rstudio/etl/data/hipotecas/hipotecas_lectura&#39;))</code></pre>
+<pre><code>## Rows: 21 Columns: 21</code></pre>
+<pre><code>## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr  (1): period
+## dbl (20): total_nacional, andalucia, aragon, asturias_principado_de, balears...</code></pre>
+<pre><code>## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code># Reading data frame 
+hipotecas2 &lt;- read_csv(&#39;/home/rstudio/etl/data/hipotecas/hipotecas_lectura&#39;, 
+                       skip = 13, n_max = 6, col_names = names)</code></pre>
+<pre><code>## Rows: 6 Columns: 21</code></pre>
+<pre><code>## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr  (1): period
+## dbl (20): total_nacional, andalucia, aragon, asturias_principado_de, balears...</code></pre>
+<pre><code>## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>hipotecas2</code></pre>
+<pre><code>## # A tibble: 6 × 21
+##   period  total_nacional andalucia aragon asturias_princi… balears_illes canarias
+##   &lt;chr&gt;            &lt;dbl&gt;     &lt;dbl&gt;  &lt;dbl&gt;            &lt;dbl&gt;         &lt;dbl&gt;    &lt;dbl&gt;
+## 1 2020M06          26890      4713    657              572           728      824
+## 2 2020M05          25630      4818    702              346           758     1259
+## 3 2020M04          24155      5571    551              453           628      669
+## 4 2020M03          27300      5284    809              544           648      962
+## 5 2020M02          36702      6864   1336              694          1022      998
+## 6 2020M01          40217      7017    985             1112          1496     1506
+## # … with 14 more variables: cantabria &lt;dbl&gt;, castilla_la_mancha &lt;dbl&gt;,
+## #   castilla_y_leon &lt;dbl&gt;, cataluna &lt;dbl&gt;, ceuta &lt;dbl&gt;,
+## #   comunitat_valenciana &lt;dbl&gt;, extremadura &lt;dbl&gt;, galicia &lt;dbl&gt;,
+## #   madrid_comunidad_de &lt;dbl&gt;, melilla &lt;dbl&gt;, murcia_region_de &lt;dbl&gt;,
+## #   navarra_comunidad_foral_de &lt;dbl&gt;, pais_vasco &lt;dbl&gt;, rioja_la &lt;dbl&gt;</code></pre>
+<p><br /> <br /></p>
+<p><strong>Exercise 3</strong> Try your best reading the original file downloaded from the INE’s site, <code>hipotecas_numero_ine.csv</code>. <em>Remark</em>: you may need to specify that the encoding is “ISO-8859-2”.</p>
+<p><strong>Solution 3</strong></p>
+<pre class="r"><code># WITH R
+hip_ine &lt;- read.csv2(&#39;/home/rstudio/etl/data/hipotecas/hipotecas_numero_ine.csv&#39;, 
+                    skip = 6, nrows = 18 , fileEncoding = &#39;ISO-8859-2&#39;)
+
+hip_ine</code></pre>
+<pre><code>##          X Total.Nacional X01.Andalucía X02.Aragón X03.Asturias..Principado.de
+## 1  2021M06         37.961         7.853      1.230                         623
+## 2  2021M05         35.225         6.746        912                         709
+## 3  2021M04         31.909         6.327        748                         525
+## 4  2021M03         36.886         6.941        775                         615
+## 5  2021M02         31.647         6.227        943                         585
+## 6  2021M01         27.518         5.591        792                         555
+## 7  2020M12         26.128         4.933        862                         448
+## 8  2020M11         28.756         5.474        860                         523
+## 9  2020M10         28.248         5.697        763                         492
+## 10 2020M09         26.878         5.030        756                         517
+## 11 2020M08         19.825         3.689        633                         419
+## 12 2020M07         26.014         4.598        721                         511
+## 13 2020M06         26.890         4.713        657                         572
+## 14 2020M05         25.630         4.818        702                         346
+## 15 2020M04         24.155         5.571        551                         453
+## 16 2020M03         27.300         5.284        809                         544
+## 17 2020M02         36.702         6.864      1.336                         694
+## 18 2020M01         40.217         7.017        985                       1.112
+##    X04.Balears..Illes X05.Canarias X06.Cantabria X08.Castilla...La.Mancha
+## 1                 852        1.084           721                    1.608
+## 2                 768        1.120           581                    1.326
+## 3                 677          861           435                    1.135
+## 4                 775        1.091           569                    1.475
+## 5                 743          831           431                    1.310
+## 6                 643          878           390                    1.114
+## 7                 505          800           354                    1.071
+## 8                 644          876           324                    1.167
+## 9                 964          800           279                    1.199
+## 10                823        1.095           338                    1.095
+## 11                504        1.063           279                      981
+## 12                751        1.221           248                      857
+## 13                728          824           365                      862
+## 14                758        1.259           334                      677
+## 15                628          669           190                      570
+## 16                648          962           353                    1.006
+## 17              1.022          998           418                    1.351
+## 18              1.496        1.506           412                    1.572
+##    X07.Castilla.y.León X09.Cataluńa X18.Ceuta X10.Comunitat.Valenciana
+## 1                1.529        5.889        17                    4.047
+## 2                1.363        6.177        29                    4.038
+## 3                1.218        5.343        28                    3.701
+## 4                1.305        6.580        19                    4.327
+## 5                1.276        5.051        28                    3.600
+## 6                1.183        4.690         7                    2.899
+## 7                1.095        4.336         6                    2.837
+## 8                1.128        4.711         5                    3.401
+## 9                1.226        4.091        21                    3.119
+## 10                 959        3.968        17                    2.867
+## 11                 963        2.787         5                    2.051
+## 12                 934        4.400        13                    3.341
+## 13               1.117        4.316        28                    2.458
+## 14                 902        4.311        88                    2.968
+## 15                 839        4.322        11                    2.861
+## 16                 962        4.985        30                    3.024
+## 17               1.491        6.437         8                    4.221
+## 18               1.891        5.584        48                    4.219
+##    X11.Extremadura X12.Galicia X13.Madrid..Comunidad.de X19.Melilla
+## 1              562         971                    7.372          51
+## 2              786       1.225                    5.625          55
+## 3              685       1.110                    6.174          43
+## 4              581       1.433                    6.881          20
+## 5              610       1.146                    5.489          73
+## 6              607       1.049                    4.349          42
+## 7              551       1.079                    4.682          48
+## 8              526         968                    5.087          43
+## 9              496         855                    5.504          22
+## 10             555       1.050                    5.077          38
+## 11             413         790                    3.059          19
+## 12             512         743                    3.833          14
+## 13             548         817                    5.045          26
+## 14             314         998                    4.918          37
+## 15             334         842                    3.974          16
+## 16             442         799                    4.749          26
+## 17             627       1.069                    6.820          23
+## 18             685       1.421                    8.660          63
+##    X14.Murcia..Región.de X15.Navarra..Comunidad.Foral.de X16.País.Vasco
+## 1                  1.136                             459          1.782
+## 2                  1.166                             517          1.873
+## 3                    827                             353          1.505
+## 4                  1.088                             474          1.734
+## 5                  1.007                             425          1.657
+## 6                    692                             458          1.426
+## 7                    563                             280          1.555
+## 8                    740                             353          1.729
+## 9                    758                             332          1.451
+## 10                   808                             274          1.469
+## 11                   585                             286          1.125
+## 12                   713                             217          2.185
+## 13                   743                             271          2.666
+## 14                   500                             295          1.281
+## 15                   680                             228          1.236
+## 16                   764                             386          1.273
+## 17                   961                             414          1.772
+## 18                   957                             723          1.628
+##    X17.Rioja..La X.1
+## 1            175  NA
+## 2            209  NA
+## 3            214  NA
+## 4            203  NA
+## 5            215  NA
+## 6            153  NA
+## 7            123  NA
+## 8            197  NA
+## 9            179  NA
+## 10           142  NA
+## 11           174  NA
+## 12           202  NA
+## 13           134  NA
+## 14           124  NA
+## 15           180  NA
+## 16           254  NA
+## 17           176  NA
+## 18           238  NA</code></pre>
+<pre class="python"><code># import pandas as pd
+hip_ine = pd.read_csv(&#39;/home/rstudio/etl/data/hipotecas/hipotecas_numero_ine.csv&#39;, 
+                      skiprows=6, nrows=18, encoding=&#39;ISO-8859-2&#39;, delimiter=&#39;;&#39;)
+
+hip_ine</code></pre>
+<pre><code>##    Unnamed: 0  Total Nacional  ...  17 Rioja, La  Unnamed: 21
+## 0     2021M06          37.961  ...           175          NaN
+## 1     2021M05          35.225  ...           209          NaN
+## 2     2021M04          31.909  ...           214          NaN
+## 3     2021M03          36.886  ...           203          NaN
+## 4     2021M02          31.647  ...           215          NaN
+## 5     2021M01          27.518  ...           153          NaN
+## 6     2020M12          26.128  ...           123          NaN
+## 7     2020M11          28.756  ...           197          NaN
+## 8     2020M10          28.248  ...           179          NaN
+## 9     2020M09          26.878  ...           142          NaN
+## 10    2020M08          19.825  ...           174          NaN
+## 11    2020M07          26.014  ...           202          NaN
+## 12    2020M06          26.890  ...           134          NaN
+## 13    2020M05          25.630  ...           124          NaN
+## 14    2020M04          24.155  ...           180          NaN
+## 15    2020M03          27.300  ...           254          NaN
+## 16    2020M02          36.702  ...           176          NaN
+## 17    2020M01          40.217  ...           238          NaN
+## 
+## [18 rows x 22 columns]</code></pre>
+<p><br /> <br /></p>
+</div>
+<div id="excel" class="section level3">
+<h3>Excel</h3>
+<p><strong>Exercise 1</strong></p>
+</div>
 </div>
 
 
