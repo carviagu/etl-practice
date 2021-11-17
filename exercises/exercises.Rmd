@@ -28,7 +28,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Version `r format(Sys.time(), '%d.%m.%y')`
 
-![](big_data_picture.jpg)
+![](resources/big_data_picture.jpg)
 <br/>
 
 ::: {.box}
@@ -147,6 +147,8 @@ PS C:\Users\carviagu> docker exec -it amazing_taussig bash
 rstudio@c0addac18593:/$
 ```
 
+<br/>
+<br/>
 
 ## Extract
 
@@ -220,7 +222,7 @@ Try your best reading the original file downloaded from the INE's site, ```hipot
 hip_ine <- read.csv2('/home/rstudio/etl/data/hipotecas/hipotecas_numero_ine.csv', 
                     skip = 6, nrows = 18 , fileEncoding = 'ISO-8859-2')
 
-hip_ine
+head(hip_ine)
 ```
 
 ```{python}
@@ -228,11 +230,9 @@ hip_ine
 hip_ine = pd.read_csv('/home/rstudio/etl/data/hipotecas/hipotecas_numero_ine.csv', 
                       skiprows=6, nrows=18, encoding='ISO-8859-2', delimiter=';')
 
-hip_ine
+hip_ine.head()
 ```
 
-
-<br/>
 <br/>
 
 ### Excel
@@ -242,14 +242,296 @@ Read with Python and ```pandas``` the second sheet of the ```ejemplos_lecturas.x
 file.
 
 **Solution 1**
-```{python}
-# WITH PYTHON
-pip install openpyxl 
-import pandas as pd
 
-ejemplos = pd.read_excel('/home/rstudio/etl/data/ejemplos_lectura.xlsx', 
-                          sheet_name=1)
+We can see here the solution for this exercise using **jupyter notebook**:
+
+![](resources/exercies01.PNG)
+
+<br/>
+
+### SQL
+
+**Exercise 1**
+In R, download all the rows from ```IndexPrice``` in **indexKaggle.SQlite** whose
+region is United States or Europe, from 2019 until the end of the period.
+
+**Solution 1**
+
+```{r}
+library(dplyr)
+
+# Connecting to the database
+conn <- DBI::dbConnect(RSQLite::SQLite(), '../data/indexKaggle.sqlite')
+
+# Listing tables
+DBI::dbListTables(conn)
+
+# Reading information about IndexPrice
+DBI::dbListFields(conn, 'IndexPrice')
+DBI::dbListFields(conn, 'IndexMeta')
+
+# We need to join both tables so we want to know the region of the stock
+# index and then extract only 2009 values
+query = "
+SELECT p.stock_index, date, open, high, 
+low, close, adj_close, volume
+FROM IndexPrice p INNER JOIN IndexMeta m ON(p.stock_index == m.stock_index)
+WHERE (m.region == 'United States' OR m.region == 'Europe') AND
+strftime('%Y', p.date) == '2009' 
+"
+
+table <- tbl(conn, sql(query))
+
+table %>% collect() # will execute the query
+
+# Closing connection
+DBI::dbDisconnect(conn)
+```
+
+<br/>
+<br/>
+
+**Exercise 2**
+In R and Python, from **indexKaggle.SQlite** download a table containing all the
+close prices and volume since 2007 until 2010 whose currency is dollars or euros.
+
+**Solution 2**
+
+In **R**:
+```{r}
+# library(dplyr)
+
+# Connecting to the database
+conn <- DBI::dbConnect(RSQLite::SQLite(), '../data/indexKaggle.sqlite')
+
+# We need to join both tables so we want to know the currency of the stock
+# index
+query <- "
+SELECT p.stock_index, adj_close, volume
+FROM IndexPrice p INNER JOIN IndexMeta m ON(p.stock_index == m.stock_index)
+WHERE (m.currency == 'EUR' OR m.currency == 'USD') AND 
+strftime('%Y', p.date) BETWEEN '2007' AND '2009'
+"
+
+table <- tbl(conn, sql(query))
+
+table %>% collect() # will execute the query
+
+# Closing connection
+DBI::dbDisconnect(conn)
+```
+
+In **Python**:
+```{python}
+# import pandas as pd
+from sqlalchemy import create_engine
+engine = create_engine('sqlite:///../data/indexKaggle.sqlite')
+
+query = '''
+SELECT p.stock_index, adj_close, volume
+FROM IndexPrice p INNER JOIN IndexMeta m ON(p.stock_index == m.stock_index)
+WHERE (m.currency == 'EUR' OR m.currency == 'USD') AND 
+strftime('%Y', p.date) BETWEEN '2007' AND '2009'
+'''
+
+table = pd.read_sql(query, engine)
+table.head()
+
+```
+
+<br/>
+<br/>
+
+**Exercise 3** 
+With R or Python, use the ```elections2016.sqlite``` database for extracting some data. We want a table that includes all the adjusted polls for Trump and Clinton in the Ohio and Pennsylvania states, along with the final results, order from the newest poll to the oldest (considering only the ```enddate``` column). The final table will have the next columns:
+
+* (From the ```Polls``` table) state, enddate, grade, samplesize, adjpoll_clinton, adjpoll_trump.
+* (From the ```Results``` table) electoral_votes, clinton, trump.
+
+**Solution 3**
+
+With **R**:
+```{r}
+conn <- DBI::dbConnect(RSQLite::SQLite(), '../data/elections2016.sqlite')
+
+DBI::dbListFields(conn, 'Polls')
+
+DBI::dbListFields(conn, 'Results')
+
+query <- "
+SELECT p.state, p.enddate, p.grade, p.samplesize, p.adjpoll_clinton, 
+p.adjpoll_trump, r.electoral_votes, r.clinton, r.trump
+FROM Polls p INNER JOIN Results r ON(p.state == r.state)
+WHERE p.state == 'Ohio' OR p.state == 'Pennsylvania'
+ORDER BY p.enddate DESC
+"
+
+table <- tbl(conn, sql(query))
+table %>% collect() # will execute the query
+
+```
+
+With **Python**:
+```{python}
+# import pandas as pd
+# from sqlalchemy import create_engine
+engine = create_engine('sqlite:///../data/elections2016.sqlite')
+
+query = '''
+SELECT p.state, p.enddate, p.grade, p.samplesize, p.adjpoll_clinton, 
+p.adjpoll_trump, r.electoral_votes, r.clinton, r.trump
+FROM Polls p INNER JOIN Results r ON(p.state == r.state)
+WHERE p.state == 'Ohio' OR p.state == 'Pennsylvania'
+ORDER BY p.enddate DESC
+'''
+
+table = pd.read_sql(query, engine)
+table.head()
+```
+
+<br/>
+<br/>
+
+**Exercise 4** 
+In the **Pets** database, check if there is any owner with more the one pet.
+
+**Solution 4**
+
+With **R**:
+```{r}
+conn <- DBI::dbConnect(RSQLite::SQLite(), '../data/pets.sqlite')
+
+DBI::dbListTables(conn)
+
+DBI::dbListFields(conn, 'Owners')
+DBI::dbListFields(conn, 'Pets')
+
+query <- "
+SELECT o.OwnerID, count(p.PetID)
+FROM Owners o INNER JOIN Pets p ON(o.OwnerID == p.OwnerID)
+GROUP BY o.OwnerID
+HAVING count(p.PetID) > 1
+"
+
+table <- tbl(conn, sql(query))
+table %>% collect() # will execute the query
 
 ```
 
 
+With **Python**:
+```{python}
+# import pandas as pd
+# from sqlalchemy import create_engine
+engine = create_engine('sqlite:///../data/pets.sqlite')
+
+query = '''
+SELECT o.OwnerID, count(p.PetID)
+FROM Owners o INNER JOIN Pets p ON(o.OwnerID == p.OwnerID)
+GROUP BY o.OwnerID
+HAVING count(p.PetID) > 1
+'''
+
+table = pd.read_sql(query, engine)
+table.head()
+```
+
+<br/>
+<br/>
+
+**Exercise 5**
+Calculate the income per day considering all procedures.
+
+**Solution5**
+
+With **R**:
+```{r}
+conn <- DBI::dbConnect(RSQLite::SQLite(), '../data/pets.sqlite')
+
+DBI::dbListTables(conn)
+
+DBI::dbListFields(conn, 'ProceduresDetails')
+DBI::dbListFields(conn, 'ProceduresHistory')
+
+query <- "
+SELECT h.date, AVG(d.price)
+FROM ProceduresHistory h INNER JOIN ProceduresDetails d 
+    ON(h.ProcedureType == d.ProcedureType AND 
+        h.ProcedureSubCode == d.ProcedureSubCode) 
+GROUP BY h.date
+"
+
+table <- tbl(conn, sql(query))
+table %>% collect() # will execute the query
+
+```
+
+
+With **Python**:
+```{python}
+# import pandas as pd
+# from sqlalchemy import create_engine
+engine = create_engine('sqlite:///../data/pets.sqlite')
+
+query = '''
+SELECT h.date, AVG(d.price)
+FROM ProceduresHistory h INNER JOIN ProceduresDetails d 
+    ON(h.ProcedureType == d.ProcedureType AND 
+        h.ProcedureSubCode == d.ProcedureSubCode) 
+GROUP BY h.date
+'''
+
+table = pd.read_sql(query, engine)
+table.head()
+```
+
+<br/>
+<br/>
+
+**Exercise 6**
+Using ```strftime()```, calculate the income per month considering only the 
+transactions done by owners from the largest city in the database (the largest
+city is the one with a larger number of owners)
+
+**Solution 6**
+
+With **R**:
+```{r}
+conn <- DBI::dbConnect(RSQLite::SQLite(), '../data/pets.sqlite')
+
+query1 <- "
+SELECT City, COUNT(OwnerID)
+FROM Owners
+GROUP BY City
+ORDER BY COUNT(OwnerID) DESC
+LIMIT 1
+"
+
+table <- tbl(conn, sql(query1))
+table %>% collect() # will execute the query
+
+query2 <- "
+SELECT h.date, AVG(d.price)
+FROM ProceduresHistory h INNER JOIN ProceduresDetails d 
+    ON(h.ProcedureType == d.ProcedureType AND 
+        h.ProcedureSubCode == d.ProcedureSubCode) 
+        INNER JOIN Pets p ON (h.PetID == p.PetID)
+WHERE p.OwnerID IN 
+                (SELECT OwnerID 
+                  FROM Owners 
+                  WHERE City == 'Southfield')
+GROUP BY h.date
+"
+
+table <- tbl(conn, sql(query2))
+table %>% collect() # will execute the query
+```
+
+The same query will be used for Python but with ```sqlalchemy``` syntax.
+
+<br/>
+<br/>
+
+## Transform
+
+### Missing Values
