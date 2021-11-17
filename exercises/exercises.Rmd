@@ -238,4 +238,18 @@ hip_ine
 ### Excel
 
 **Exercise 1**
+Read with Python and ```pandas``` the second sheet of the ```ejemplos_lecturas.xlsx```
+file.
+
+**Solution 1**
+```{python}
+# WITH PYTHON
+pip install openpyxl 
+import pandas as pd
+
+ejemplos = pd.read_excel('/home/rstudio/etl/data/ejemplos_lectura.xlsx', 
+                          sheet_name=1)
+
+```
+
 
