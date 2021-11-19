@@ -190,8 +190,8 @@ hipotecas.head(6)
 
 **Alternative solution**
 ```{python}
-hipotecas_df = pd.read_csv(route, skiprows= range(1, 7), nrows=6, header=0)
-hipotecas_df
+hipotecas = pd.read_csv('/home/rstudio/etl/data/hipotecas/hipotecas_lectura', skiprows= range(1, 7), nrows=6, header=0)
+hipotecas
 ```
 
 
@@ -506,28 +506,20 @@ With **R**:
 ```{r}
 conn <- DBI::dbConnect(RSQLite::SQLite(), '../data/pets.sqlite')
 
-query1 <- "
-SELECT City, COUNT(OwnerID)
-FROM Owners
-GROUP BY City
-ORDER BY COUNT(OwnerID) DESC
-LIMIT 1
-"
-
-table <- tbl(conn, sql(query1))
-table %>% collect() # will execute the query
-
 query2 <- "
-SELECT h.date, AVG(d.price)
+SELECT strftime('%Y-%m',  h.Date), AVG(d.price)
 FROM ProceduresHistory h INNER JOIN ProceduresDetails d 
     ON(h.ProcedureType == d.ProcedureType AND 
         h.ProcedureSubCode == d.ProcedureSubCode) 
-        INNER JOIN Pets p ON (h.PetID == p.PetID)
-WHERE p.OwnerID IN 
-                (SELECT OwnerID 
-                  FROM Owners 
-                  WHERE City == 'Southfield')
-GROUP BY h.date
+        INNER JOIN Pets p ON (h.PetID == p.PetID) 
+        INNER JOIN Owners o ON (p.OwnerID == o.OwnerID)
+WHERE o.City IN 
+                (SELECT City
+                  FROM Owners
+                  GROUP BY City
+                  ORDER BY COUNT(*) DESC
+                  LIMIT 1)
+GROUP BY strftime('%Y-%m',  h.Date)
 "
 
 table <- tbl(conn, sql(query2))
@@ -551,6 +543,29 @@ and a variance you consider appropriate.
 **Solution 1**
 See ```code/05b-transform-missing.R``` document. 
 
+```
+#V1
+how_many_na <- sum(is.na(df_imputed$V1))
+df_imputed$V1[is.na(df_imputed$V1)] <- runif(how_many_na)
+
+#V2
+how_many_na <- sum(is.na(df_imputed$V2))
+df_imputed$V2[is.na(df_imputed$V2)] <- rnorm(how_many_na, mean = 0, sd = 1)
+
+#V3
+how_many_na <- sum(is.na(df_imputed$V3))
+df_imputed$V3[is.na(df_imputed$V3)] <- rnorm(how_many_na, mean = 100, sd = sqrt(10))
+
+#v4
+how_many_na <- sum(is.na(df_imputed$V4))
+df_imputed$V4[is.na(df_imputed$V4)] <- rpois(how_many_na, lambda = 10)
+
+#V5
+how_many_na <- sum(is.na(df_imputed$V5))
+df_imputed$V5[is.na(df_imputed$V5)] <- seq(1, 15)
+
+```
+
 <br/>
 <br/>
 
@@ -568,6 +583,108 @@ vector_letters[sample(seq_len(50), 25)] <- NA
 # Let's see the vector composition
 vector_letters
 
+# We use a as previous non NA value
+prev <- "a"
+pos <- 1
+for (value in vector_letters) {
+  if (is.na(value)) {
+    vector_letters[pos] <- prev
+  } else {
+    prev <- value
+  }
+  pos <- pos + 1
+}
+
+# Check
+vector_letters
 ```
 
+**Alternative solution**
+```{r}
+library(dplyr)
+set.seed(5678)
+vector_letters <- sample(letters, 50, TRUE)
+vector_letters[sample(seq_len(50), 25)] <- NA
 
+lag(vector_letters, n=1)
+```
+
+<br/>
+<br/>
+
+**Exercise 3**
+Replace all the **NA** of the column V5 in ```df_simulated``` data frame using the moving average approach - with a period not longer than 1. 
+
+**Solution 3**
+
+```
+library(purrr)
+
+df_imputed <- df_simulated
+
+df_imputed$V5 <- imap_dbl(df_simulated$V5, function(.x, .y){
+  # .x represents the value in the iteration
+  # .y represents the index of the interation
+  
+  if(!is.na(.x)){
+   return(.x) 
+  } else {
+  prev_value <- df_simulated$V5[.y - 1] 
+  next_value <- df_simulated$V5[.y + 1] 
+  
+  return(mean(c(prev_value, next_value)))  
+  }
+})
+```
+
+<br/>
+<br/>
+
+**Exercise 4**
+Build a function for scaling the ```iris``` dataset with the *min_max* approach
+and scale all the numeric columns.
+
+**Solution 4**
+
+```{r}
+library(dplyr)
+
+# We define the min-max function approach
+weight <- function(value, mini, maxi) {
+  return((value-mini)/(maxi-mini))
+}
+
+# We make the conversion
+iris_scaled <- iris %>% 
+  mutate(across(where(is.numeric), ~ weight(., min(.), max(.))))
+
+iris_scaled %>% 
+  summarise(across(where(is.numeric), list(mean = mean, sd = sd)))
+```
+
+<br/>
+<br/>
+
+**Exercise 5**
+For the data frame ```iris``` build new functions ```setosa```, ```versicolor``` 
+and ```virginica```. ```setosa``` will equal 1 if ```Species == setosa``` and 0
+in the other case. 
+
+**Solution 5**
+
+This is an exercise about categorical encoding:
+```{r}
+library(dplyr)
+
+iris_encoded <- iris %>% 
+  mutate(setosa = if_else(Species == 'setosa', 1, 0),
+         versicolor = if_else(Species == 'versicolor', 1, 0),
+         virginica = if_else(Species == 'virginica', 1, 0)) %>% 
+  select(Species, setosa, versicolor, virginica)
+
+iris_encoded
+```
+
+<br/>
+
+### Dates and Time Series
