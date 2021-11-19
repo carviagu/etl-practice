@@ -188,6 +188,13 @@ skiprows=7, nrows=6, names=cols)
 hipotecas.head(6)
 ```
 
+**Alternative solution**
+```{python}
+hipotecas_df = pd.read_csv(route, skiprows= range(1, 7), nrows=6, header=0)
+hipotecas_df
+```
+
+
 <br/>
 <br/>
 
@@ -535,3 +542,32 @@ The same query will be used for Python but with ```sqlalchemy``` syntax.
 ## Transform
 
 ### Missing Values
+
+**Exercise 1**
+Finish replacing the **NA** values from ```df_simulated``` data frame using the 
+column known distributions. For column V5 use a normal distribution with a mean 
+and a variance you consider appropriate.
+
+**Solution 1**
+See ```code/05b-transform-missing.R``` document. 
+
+<br/>
+<br/>
+
+**Exercise 2**
+Given the next vector, replace every **NA** value with the previous non **NA** 
+value.
+
+**Solution 2**
+
+```{r}
+set.seed(5678)
+vector_letters <- sample(letters, 50, TRUE)
+vector_letters[sample(seq_len(50), 25)] <- NA
+
+# Let's see the vector composition
+vector_letters
+
+```
+
+
