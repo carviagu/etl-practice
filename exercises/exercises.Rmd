@@ -28,7 +28,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Version `r format(Sys.time(), '%d.%m.%y')`
 
-![](resources/big_data_picture.jpg)
+<p align="center">
+  <img width="1000" src="resources/main_panel.png">
+</p>
 <br/>
 
 ::: {.box}
@@ -814,18 +816,154 @@ iris_encoded <- iris %>%
          virginica = if_else(Species == 'virginica', 1, 0)) %>% 
   select(Species, setosa, versicolor, virginica)
 
-iris_encoded
+head(iris_encoded)
 ```
 
 <br/>
 
 ### Dates and Time Series
 
+**Exercise 1**
+Extract from the ```Pets``` database the daily number of procedures from the 
+```ProceduresHistory``` table. 
+
+**Solution 1**
+```{r}
+library(dplyr)
+conn <- DBI::dbConnect(RSQLite::SQLite(), '../data/pets.sqlite')
+
+query <- "
+SELECT Date, COUNT(*)
+FROM ProceduresHistory
+GROUP BY Date
+"
+
+table <- tbl(conn, sql(query)) %>% collect()
+head(table)
+```
+<br/>
+<br/>
+
+**Exercise 2**
+In that table you extracted in the previous exercise, create a new column that equals
+1 if the date is a Sunday; 0, elsewhere. For knowing when a date is Sunday, you can 
+use something like ```format(a_date, format = "%u")```, which output the weekday number 
+(7 for Sundays). **Remark**. The column must be of type ```Date```.
+
+**Solution 2**
+```{r}
+library(dplyr)
+
+table_sund <- table %>% 
+  mutate(Sunday = if_else(format(as.Date(Date), format = "%u") == "7", 1, 0))
+
+table_sund %>% filter(Sunday == 1) %>% head()
+```
+
+<br/>
+<br/>
+
+**Exercise 3**
+During February 4th 2016 there was a peak, a very extreme value. Create a column
+with a dummy variable indicating that date.
+
+**Solution 4**
+```{r}
+library(dplyr)
+
+table %>% 
+  mutate(Anomaly = if_else(Date == '2016-02-04', 1, 0)) %>% 
+  filter(format(as.Date(Date), format = '%m') == "02") %>% 
+  head()
+```
+
+<br/>
+<br/>
+
+**Exercise 5**
+Let’s go now with something independent from the previous data. Imagine we have a data
+frame like the one created from the next code. The ﬁrst column indicates the beginning and end of each
+week of 2021, but in a terrible format. Create a new column with only the ﬁrst date of each week, but with
+the format ```yyyy-mm-dd```.
+
+**Solution 5**
+```{r}
+library(dplyr)
+crear_dias <- function(ini, fin) {
+  format(seq(as.Date(ini), as.Date(fin), by = 7),
+  format = "%d/%m/%Y")
+}
+
+fechas_horribles <- paste(
+  crear_dias("2020-12-28", "2021-12-27"),
+  crear_dias("2021-01-03", "2022-01-02"),
+  sep = " - "
+)
+
+df <- tibble(
+  semana = fechas_horribles,
+  metrica = runif(length(fechas_horribles))
+)
+
+df
+
+# Solution
+df %>% 
+  mutate(start = as.Date(semana, format = '%d/%m/%Y')) %>% 
+  head()
+```
 
 <br/>
 
-::: {.box}
-Documento elaborado mediante Rmarkdown por **Carlos Viñals Guitart**
+### Regular Expressions
 
-[GitHub](https://github.com/carviagu/etl-practice)
+**Exercise 1**
+Translate the regex operations in R into Python. **Remark**. For replacing use 
+```re.sub()``` method.
+
+**Solution 1**
+```{python}
+# TO DO
+```
+
+<br/>
+<br/>
+
+**Exercise 2**
+Translate the regex Python operations to R.
+
+**Solution 2**
+```{r}
+
+```
+
+
+<br/>
+<br/>
+
+## Load
+
+<br/>
+<br/>
+
+## APIs
+
+
+<br/>
+<br/>
+
+::: {.box}
+<p align="center">
+  Documento elaborado mediante Rmarkdown por **Carlos Viñals Guitart**
+  ([carviagu](https://github.com/carviagu/etl-practice))
+</p>
 :::
+
+<br/>
+
+<p align="center">
+  <img width="100" src="../logo.png">
+</p>
+
+<br/>
+<br/>
