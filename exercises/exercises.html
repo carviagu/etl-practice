@@ -354,7 +354,8 @@ c0addac18593   lhansa/cunefetl:0.1.1   &quot;bash&quot;    3 weeks ago   Up 7 mi
 <p>We can access our container using <code>docker exec</code> command:</p>
 <pre><code>PS C:\Users\carviagu&gt; docker exec -it amazing_taussig bash
 rstudio@c0addac18593:/$</code></pre>
-<p><strong><em>Git</em></strong> Git is tool created to manage the evolution of our project, related with version control. This will help to control the different stages of the evolution of our code, and make sure about the different changes we make to it.</p>
+<p><strong><em>Git</em></strong></p>
+<p>Git is tool created to manage the evolution of our project, related with version control. This will help to control the different stages of the evolution of our code, and make sure about the different changes we make to it.</p>
 <p>You can see all related information about Git in the theory modules.</p>
 <p><br /> <br /></p>
 </div>
@@ -850,6 +851,49 @@ table %&gt;% collect() # will execute the query</code></pre>
 ## 5 2016-10                                  10
 ## 6 2016-12                                  10</code></pre>
 <p>The same query will be used for Python but with <code>sqlalchemy</code> syntax.</p>
+<p><br /></p>
+</div>
+<div id="spark" class="section level3">
+<h3>Spark</h3>
+<p>Before starting this exercises, the followin preparation has been done:</p>
+<pre class="console"><code># Creating the spark session
+spark = SparkSession.builder.master(&quot;local[4]&quot;) \
+                    .appName(&#39;sparklyr&#39;) \
+                    .getOrCreate()
+
+flights = spark.read.csv(&#39;../data/flights/flights.csv&#39;, header=True)
+flights.createOrReplaceTempView(&quot;flights&quot;)</code></pre>
+<p><strong>Exercise 1</strong> How many origin airports are there in the <code>flights</code> table?</p>
+<p><strong>Solution 1</strong></p>
+<pre class="console"><code>flights.select(&#39;origin&#39;).distinct().count()</code></pre>
+<p><br /> <br /></p>
+<p><strong>Exercise 2</strong> How many destinations airport are for each origin airport?</p>
+<p><strong>Solution 2</strong></p>
+<pre class="console"><code>conteo_aux = flights.select(&#39;dest&#39;, &#39;origin&#39;).distinct()
+conteo_aux.groupBy(&#39;origin&#39;).count().show()</code></pre>
+<p><br /> <br /></p>
+<p><strong>Exercise 3</strong> Calculate de average departure delay for each origin airport.</p>
+<p><strong>Solution 3</strong></p>
+<pre class="console"><code>from pyspark.sql.types import DoubleType
+
+flights = flights.withColumn(&#39;dep_delay&#39;, flights[&#39;dep_delay&#39;].cast(DoubleType()))
+
+flights.select(&#39;origin&#39;, &#39;dep_delay&#39;).groupBy(&#39;origin&#39;).avg(&#39;dep_delay&#39;).show()</code></pre>
+<p><br /> <br /></p>
+<p><strong>Exercise 4</strong> Remove the registers whose travelling distance is greater than the 95% of the travelling distances.</p>
+<p><strong>Solution 4</strong></p>
+<pre class="console"><code>from pyspark.sql.types import DoubleType
+
+flights = flights.withColumn(&#39;distance&#39;, flights[&#39;distance&#39;].cast(DoubleType()))
+
+# Computing 95 quantile
+flights_ord = flights.select(&#39;distance&#39;).sort(&#39;distance&#39;) # order the distances
+element_95 = int(flights_ord.count() * 0.95) # position 0.95
+value_95 = flights_ord.collect()[element_95][0]
+
+# Filtering all values with distance higher than 95 quantile
+flights_95 = flights.filter(flights[&#39;distance&#39;] &lt;= value_95)
+flights_95.show(6)</code></pre>
 <p><br /> <br /></p>
 </div>
 </div>
@@ -1126,6 +1170,11 @@ iris_encoded</code></pre>
 </div>
 <div id="dates-and-time-series" class="section level3">
 <h3>Dates and Time Series</h3>
+<p><br /></p>
+<div class="box">
+<p>Documento elaborado mediante Rmarkdown por <strong>Carlos Viñals Guitart</strong></p>
+<p><a href="https://github.com/carviagu/etl-practice">GitHub</a></p>
+</div>
 </div>
 </div>
 

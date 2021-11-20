@@ -587,6 +587,80 @@ table %>% collect() # will execute the query
 The same query will be used for Python but with ```sqlalchemy``` syntax.
 
 <br/>
+
+### Spark
+
+Before starting this exercises, the followin preparation has been done:
+```{console}
+# Creating the spark session
+spark = SparkSession.builder.master("local[4]") \
+                    .appName('sparklyr') \
+                    .getOrCreate()
+
+flights = spark.read.csv('../data/flights/flights.csv', header=True)
+flights.createOrReplaceTempView("flights")
+```
+
+
+**Exercise 1**
+How many origin airports are there in the ```flights``` table?
+
+**Solution 1**
+```{console}
+flights.select('origin').distinct().count()
+```
+
+<br/>
+<br/>
+
+**Exercise 2**
+How many destinations airport are for each origin airport?
+
+**Solution 2**
+```{console}
+conteo_aux = flights.select('dest', 'origin').distinct()
+conteo_aux.groupBy('origin').count().show()
+```
+
+<br/>
+<br/>
+
+**Exercise 3**
+Calculate de average departure delay for each origin airport.
+
+**Solution 3**
+```{console}
+from pyspark.sql.types import DoubleType
+
+flights = flights.withColumn('dep_delay', flights['dep_delay'].cast(DoubleType()))
+
+flights.select('origin', 'dep_delay').groupBy('origin').avg('dep_delay').show()
+```
+
+<br/>
+<br/>
+
+**Exercise 4**
+Remove the registers whose travelling distance is greater than the 95% of the 
+travelling distances.
+
+**Solution 4**
+```{console}
+from pyspark.sql.types import DoubleType
+
+flights = flights.withColumn('distance', flights['distance'].cast(DoubleType()))
+
+# Computing 95 quantile
+flights_ord = flights.select('distance').sort('distance') # order the distances
+element_95 = int(flights_ord.count() * 0.95) # position 0.95
+value_95 = flights_ord.collect()[element_95][0]
+
+# Filtering all values with distance higher than 95 quantile
+flights_95 = flights.filter(flights['distance'] <= value_95)
+flights_95.show(6)
+```
+
+<br/>
 <br/>
 
 ## Transform
@@ -746,3 +820,12 @@ iris_encoded
 <br/>
 
 ### Dates and Time Series
+
+
+<br/>
+
+::: {.box}
+Documento elaborado mediante Rmarkdown por **Carlos Viñals Guitart**
+
+[GitHub](https://github.com/carviagu/etl-practice)
+:::
