@@ -923,6 +923,13 @@ Translate the regex operations in R into Python. **Remark**. For replacing use
 
 **Solution 1**
 ```{python}
+import re
+fruits = ["apple", "banana", "pear"]
+
+r = re.compile(".*e")
+newlist = list(filter(r.match, fruits))
+print(newlist)
+
 # TO DO
 ```
 
@@ -934,7 +941,7 @@ Translate the regex Python operations to R.
 
 **Solution 2**
 ```{r}
-
+# TO DO
 ```
 
 
@@ -943,10 +950,116 @@ Translate the regex Python operations to R.
 
 ## Load
 
+**Exercise 1**
+Repeat with R all the process shown in Python for the ```indexKaggle.sqlite```
+database
+
+**Solution 1**
+```{r}
+library(dplyr)
+library(purrr)
+library(ggplot2)
+
+conn <- DBI::dbConnect(RSQLite::SQLite(), '../data/indexKaggle.sqlite')
+
+query = "
+  SELECT IndexMeta.region, IndexPrice.stock_index, 
+         IndexPrice.date, 
+         IndexPrice.adj_close, IndexPrice.volume, 
+         IndexMeta.currency
+  FROM IndexPrice INNER JOIN IndexMeta
+      ON IndexPrice.stock_index = IndexMeta.stock_index
+  WHERE IndexMeta.region in ('United States', 'Europe') and 
+      IndexPrice.date >= '2019-01-01' and
+      IndexPrice.adj_close is not null
+"
+
+table <- tbl(conn, sql(query)) %>% collect()
+
+head(table)
+
+# Adj_close value to numeric
+table <- table %>% 
+  mutate(adj_close = as.numeric(adj_close)) %>% 
+  mutate(date = as.Date(date))
+
+table$adj_close <- imap_dbl(table$adj_close, function(.x, .y){
+  # .x represents the value in the iteration
+  # .y represents the index of the interation
+  
+  if(!is.na(.x)){
+   return(.x) 
+  } else {
+  prev_value <- table$adj_close[.y - 1] 
+  next_value <- table$adj_close[.y + 1] 
+  
+  return(mean(c(prev_value, next_value)))  
+  }
+})
+
+# There isn't NA values
+sum(is.na(table['adj_close']))
+
+# Creating a table for each index
+c(unique(table$stock_index))
+
+  nya <- table %>% 
+    filter(stock_index == 'NYA') %>% 
+    select(date, adj_close) %>% 
+    mutate(smoothed = zoo::rollmean(adj_close, k = 15, fill=NA))
+  
+  ixic <- table %>% 
+    filter(stock_index == 'IXIC') %>% 
+    select(date, adj_close) %>% 
+    mutate(smoothed = zoo::rollmean(adj_close, k = 15, fill=NA))
+  
+  n100 <- table %>% 
+    filter(stock_index == 'N100') %>% 
+    select(date, adj_close) %>% 
+    mutate(smoothed = zoo::rollmean(adj_close, k = 15, fill=NA))
+  
+ggplot(nya, aes(x=date)) +
+  geom_line(aes(y=adj_close), color = 'blue') +
+  geom_line(aes(y=smoothed), color = 'red')
+
+# Insert tables
+DBI::dbCreateTable(conn, 'NYA', nya)
+DBI::dbCreateTable(conn, 'IXIC', ixic)
+DBI::dbCreateTable(conn, 'N100', n100)
+
+# Populate tables
+DBI::dbAppendTable(conn, 'NYA', nya)
+DBI::dbAppendTable(conn, 'IXIC', ixic)
+DBI::dbAppendTable(conn, 'N100', n100)
+
+# Check tables
+DBI::dbListTables(conn)
+
+tbl(conn, sql('SELECT * FROM NYA')) %>% collect()
+
+# Drop tables
+DBI::dbRemoveTable(conn, 'NYA')
+DBI::dbRemoveTable(conn, 'IXIC')
+DBI::dbRemoveTable(conn, 'N100')
+
+# Check tables
+DBI::dbListTables(conn)
+
+```
+
 <br/>
 <br/>
 
 ## APIs
+
+**Exercise 1**
+Select 3 subgroups within the INE data base an retrieve the IPC for these subgroups,
+Make the request within a loop. Somehow, manage to get a table similar to the original one. It can be done in Python or R. 
+
+**Solution 1**
+```{r}
+# TO DO
+```
 
 
 <br/>
