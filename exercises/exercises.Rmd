@@ -55,7 +55,7 @@ code  data  exercises  logo.png  README.md
 You can use different commands like ```-la```, this option will show you all the
 elements you can find inside the directory you are:
 
-```console
+```{console}
 rstudio@c0addac18593:~/etl$ ls -la
 total 56
 drwxr-xr-x 6 rstudio rstudio  4096 Nov 16 12:19 .
@@ -106,8 +106,56 @@ Create in your local Desktop a file called ```testing-bash.ter``` and write in t
 
 **Solution 2**
 
-```console
-# TO DO
+With ```echo``` the console will return the text we gave it:
+```{console}
+rstudio@c0addac18593:~$ echo Holi!
+Holi!
+```
+The sign ```>``` is a pipeline that will pash the result of the command to another
+function or file:
+```{console}
+rstudio@c0addac18593:~$ echo Holi! > testing-bash.ter
+rstudio@c0addac18593:~$ ls
+etl  testing-bash.ter
+```
+As we can see we have create a file with the text ```Holi!``` inside.
+Now we create a directory with ````mkdir``` function and move the file inside with
+the ```mv``` function giving the file and directory to make the transfer:
+```{console}
+rstudio@c0addac18593:~$ mkdir carpeta_prueba
+rstudio@c0addac18593:~$ ls
+carpeta_prueba  etl  testing-bash.ter
+rstudio@c0addac18593:~$ mv testing-bash.ter carpeta_prueba
+rstudio@c0addac18593:~$ ls
+carpeta_prueba  etl
+rstudio@c0addac18593:~$ cd carpeta_prueba
+rstudio@c0addac18593:~/carpeta_prueba$ ls
+testing-bash.ter
+```
+We can check whats inside of a file using ```cat``` function, this will print in 
+the console the result:
+```{console}
+rstudio@c0addac18593:~/carpeta_prueba$ cat testing-bash.ter
+Holi!
+```
+Finally, we are going to remove the directory.
+For this will normally use ```rm``` function, but this only works for files, in the
+case of directories we have to use ```rmdir```.
+
+Another problem we can find is that the directory is not empty, in this cases we can't
+simply delete it, we can use ```-rf``` property at the function, this will make a recursive
+delete, deleting first the inside files and then the directory itself.
+
+We can see our exercise now:
+```{console}
+rstudio@c0addac18593:~/carpeta_prueba$ cd ..
+rstudio@c0addac18593:~$ rm carpeta_prueba
+rm: cannot remove 'carpeta_prueba': Is a directory
+rstudio@c0addac18593:~$ rmdir carpeta_prueba
+rmdir: failed to remove 'carpeta_prueba': Directory not empty
+rstudio@c0addac18593:~$ rm -rf carpeta_prueba
+rstudio@c0addac18593:~$ ls
+etl
 ```
 
 <br/>
@@ -123,6 +171,8 @@ in GitHub and link a folder inside this container to that repo.
 This exercise can be done with the tools we explain at *Exercise 1*, but it is 
 interesting to talk a bit about **Docker** and **Git**. Two very important tools for 
 programming in general.
+
+***Docker***
 
 For creating your the container of the exercise you have to open a console and write the
 following command:
@@ -146,6 +196,14 @@ We can access our container using ```docker exec``` command:
 PS C:\Users\carviagu> docker exec -it amazing_taussig bash
 rstudio@c0addac18593:/$
 ```
+
+***Git***
+
+Git is tool created to manage the evolution of our project, related with version control. This
+will help to control the different stages of the evolution of our code, and make sure about the
+different changes we make to it. 
+
+You can see all related information about Git in the theory modules.
 
 <br/>
 <br/>

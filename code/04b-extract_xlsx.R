@@ -1,6 +1,6 @@
 library(readxl)
 
-# setwd("~/etl") # para mi máquina local
+setwd("~/etl") # para mi máquina local
 
 path_to_file <- "data/ejemplos_lectura.xlsx"
 df_ejemplos <- read_xlsx(path_to_file)
