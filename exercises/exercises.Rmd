@@ -1058,7 +1058,65 @@ Make the request within a loop. Somehow, manage to get a table similar to the or
 
 **Solution 1**
 ```{r}
-# TO DO
+library(httr)
+library(tidyverse)
+
+subgroups <- c('304099', '304101', '304103') # Transporte, Ocio, Hoteles
+
+data <- list()
+i = 1
+
+for (group in subgroups) {
+  # Generating the URL
+  url <- paste(
+    "https://servicios.ine.es/wstempus/js/ES/DATOS_METADATAOPERACION/25?p=1&g1=762:", 
+    subgroups[i], 
+    "&g2=3:83&g3=349:16473&date=20210531:20210901&page=1", 
+    sep = "")
+  
+  # Petition to the API
+  r <- GET(url)
+  
+  # Status check
+  if(status_code(r) == 200) {
+    # Extracting Data
+    data[i] <- content(r)[[1]]$Data
+    
+    # Next petition
+    i <- i+1
+  } else {
+    stop(paste('Error during petition. Code: ', status_code(r)))
+  }
+
+}
+
+```
+
+<br/>
+<br/>
+
+**Exercise 2**
+Think of a company you are interested on extracting the following data:
+
+* market capitalization
+* PE ratio
+* total revenue
+
+
+**Solution 2**
+```{python}
+import pandas as pd
+from yahoofinancials import YahooFinancials
+from datetime import date
+
+yf = YahooFinancials('TSLA')
+
+data_mk = yf.get_market_cap()
+
+data_pe = yf.get_pe_ratio()
+
+data_tr = yf.get_total_revenue()
+
 ```
 
 
