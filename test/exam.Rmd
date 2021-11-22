@@ -1,0 +1,33 @@
+---
+title: "ETL Exam Notebook"
+author: "Máster Universitario en Ciencia de Datos"
+date: "CUNEF Universidad"
+output: html_document
+---
+
+
+
+```{r}
+
+texto <- "8YPFLMRXKY27I3JI6VGO25470362IY1T9LYOF8"
+
+texto2 <- gsub("[0-9]{8}[A-Z]", "   ", texto)
+
+texto2
+```
+
+
+```{python}
+import requests
+
+bitcoin = requests.get('http://api.coincap.io/v2/assets/bitcoin')
+```
+```{r}
+texto <- "Este es el DNI 12345678X"
+
+texto2 <- gsub("[0-9]+[A-z]$", "xxxxxxxxx.", texto)
+
+texto2
+```
+
+
